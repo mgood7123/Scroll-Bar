@@ -387,9 +387,17 @@ public class ScrollBarTrack extends FrameLayout {
             case MotionEvent.ACTION_MOVE:
                 if (!isResizing && isDragging) {
                     if (scrollBarLogic.getOrientation() == VERTICAL) {
-                        scrollBarLogic.computeThumbYPosition(currentRawY + downDY, scrollBarLogic.getSavedThumbHeight());
+                        scrollBarLogic.computeThumbYPosition(
+                                currentRawY + downDY,
+                                scrollBarLogic.getSavedThumbHeight(),
+                                scrollBarLogic.DO_SCROLL
+                        );
                     } else {
-                        scrollBarLogic.computeThumbXPosition(currentRawX + downDX, scrollBarLogic.getSavedThumbWidth());
+                        scrollBarLogic.computeThumbXPosition(
+                                currentRawX + downDX,
+                                scrollBarLogic.getSavedThumbWidth(),
+                                scrollBarLogic.DO_SCROLL
+                        );
                     }
                     return true;
                 } else if (isResizing && !isDragging) {

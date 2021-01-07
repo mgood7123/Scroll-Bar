@@ -9,10 +9,10 @@ public class ScrollBarLogic {
 
     public void init() {
         if (mOrientation == VERTICAL) {
-            setThumbY(0);
+            setThumbY(0, DO_SCROLL);
             setThumbHeight(100);
         } else {
-            setThumbX(0);
+            setThumbX(0, DO_SCROLL);
             setThumbWidth(100);
         }
     }
@@ -25,6 +25,11 @@ public class ScrollBarLogic {
         }
     }
 
+    // the thumb size is only set when:
+    // 1. the document width and/or height changes
+    // 2. the window width and/or height changes
+    // 3. the scroll bar width and/or height changes
+
     void setThumbSize() {
         if (mOrientation == VERTICAL) {
             // this is exactly the same as
@@ -32,14 +37,14 @@ public class ScrollBarLogic {
             float thumbHeight = scrollBarHeight / (documentHeight / windowHeight);
             setThumbHeight((int) thumbHeight);
             // offset for height
-            computeThumbYPosition(thumbY, thumbHeight);
+            computeThumbYPosition(thumbY, thumbHeight, DO_SCROLL);
         } else {
             // this is exactly the same as
             // scrollBarWidth * (viewportWidth / totalPageWidth)
             float thumbWidth = scrollBarWidth / (documentWidth / windowWidth);
             setThumbWidth((int) thumbWidth);
             // offset for width
-            computeThumbXPosition(thumbX, thumbWidth);
+            computeThumbXPosition(thumbX, thumbWidth, DO_SCROLL);
         }
     }
 
@@ -49,11 +54,11 @@ public class ScrollBarLogic {
         if (mOrientation == VERTICAL) {
             multiplier = documentScrollY / (documentHeight - windowHeight);
             scrollBarPosition = multiplier * (scrollBarHeight - thumbHeight);
-            setThumbY(scrollBarPosition);
+            computeThumbYPosition(scrollBarPosition, thumbHeight, DO_SCROLL);
         } else {
             multiplier = documentScrollX / (documentWidth - windowWidth);
             scrollBarPosition = multiplier * (scrollBarWidth - thumbWidth);
-            setThumbX(scrollBarPosition);
+            computeThumbXPosition(scrollBarPosition, thumbWidth, DO_SCROLL);
         }
     }
 
@@ -78,43 +83,48 @@ public class ScrollBarLogic {
         if (mOrientation != orientation) {
             mOrientation = orientation;
             if (mOrientation == VERTICAL) {
-                setThumbY(thumbX);
-                setThumbX(0);
+                setThumbY(thumbX, DO_SCROLL);
+                setThumbX(0, DO_SCROLL);
             } else {
-                setThumbX(thumbY);
-                setThumbY(0);
+                setThumbX(thumbY, DO_SCROLL);
+                setThumbY(0, DO_SCROLL);
             }
             setThumbWidth(100);
         }
     }
 
-    public void computeThumbYPosition(float thumbY, float thumbHeight) {
+    public void computeThumbYPosition(float thumbY, float thumbHeight, boolean scroll) {
         float scrollBarPosition = thumbY;
         if (scrollBarPosition <= 0) {
-            setThumbY(0);
+            scrollBarPosition = 0;
         } else {
             float thumbEnd = scrollBarPosition + thumbHeight;
             if (thumbEnd > scrollBarHeight) {
                 scrollBarPosition = scrollBarPosition - (thumbEnd - scrollBarHeight);
             }
-            setThumbY(scrollBarPosition);
         }
+        setThumbY(scrollBarPosition, scroll);
     }
 
-    public void computeThumbXPosition(float thumbX, float thumbWidth) {
+    public void computeThumbXPosition(float thumbX, float thumbWidth, boolean scroll) {
         float scrollBarPosition = thumbX;
         if (scrollBarPosition <= 0) {
-            setThumbX(0);
+            scrollBarPosition = 0;
         } else {
             float thumbEnd = scrollBarPosition + thumbWidth;
             if (thumbEnd > scrollBarWidth) {
                 scrollBarPosition = scrollBarPosition - (thumbEnd - scrollBarWidth);
             }
-            setThumbX(scrollBarPosition);
         }
+        setThumbX(scrollBarPosition, scroll);
     }
 
+
     // variables and setters
+
+    public static final boolean DO_NOT_SCROLL = false;
+    public static final boolean DO_SCROLL = true;
+
     @IntDef({HORIZONTAL, VERTICAL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface OrientationMode {}
@@ -136,18 +146,21 @@ public class ScrollBarLogic {
 
     interface IntegerRunnable { void run(int value); }
 
-    interface FloatRunnable { void run(Float value); }
+    interface FloatRunnable { void run(float value); }
+
+    interface ScrollIntegerRunnable { void run(int value, boolean scroll); }
+    interface ScrollFloatRunnable { void run(float value, boolean scroll); }
 
     IntegerRunnable         onScrollBarWidthChanged;
     IntegerRunnable         onScrollBarHeightChanged;
-    FloatRunnable           onThumbXChanged;
-    FloatRunnable           onThumbYChanged;
+    ScrollFloatRunnable     onThumbXChanged;
+    ScrollFloatRunnable     onThumbYChanged;
     IntegerRunnable         onThumbWidthChanged;
     IntegerRunnable         onThumbHeightChanged;
     IntegerRunnable         onWindowWidthChanged;
     IntegerRunnable         onWindowHeightChanged;
-    IntegerRunnable         onDocumentWidthChanged;
-    IntegerRunnable         onDocumentHeightChanged;
+    FloatRunnable           onDocumentWidthChanged;
+    FloatRunnable           onDocumentHeightChanged;
     private int             scrollBarWidth;
     private int             scrollBarHeight;
     private float           thumbX;
@@ -210,17 +223,17 @@ public class ScrollBarLogic {
         }
     }
 
-    public void setThumbX(float thumbX) {
+    public void setThumbX(float thumbX, boolean scroll) {
         this.thumbX = thumbX;
-        if (onThumbXChanged != null) {
-            onThumbXChanged.run(thumbX);
+        if (onThumbXChanged != null && scroll) {
+            onThumbXChanged.run(thumbX, scroll);
         }
     }
 
-    public void setThumbY(float thumbY) {
+    public void setThumbY(float thumbY, boolean scroll) {
         this.thumbY = thumbY;
-        if (onThumbYChanged != null) {
-            onThumbYChanged.run(thumbY);
+        if (onThumbYChanged != null && scroll) {
+            onThumbYChanged.run(thumbY, scroll);
         }
     }
 
@@ -252,14 +265,14 @@ public class ScrollBarLogic {
         }
     }
 
-    public void setDocumentWidth(int documentWidth) {
+    public void setDocumentWidth(float documentWidth) {
         this.documentWidth = documentWidth;
         if (onDocumentWidthChanged != null) {
             onDocumentWidthChanged.run(documentWidth);
         }
     }
 
-    public void setDocumentHeight(int documentHeight) {
+    public void setDocumentHeight(float documentHeight) {
         this.documentHeight = documentHeight;
         if (onDocumentHeightChanged != null) {
             onDocumentHeightChanged.run(documentHeight);

@@ -19,8 +19,8 @@ public class scrollBarThumb {
 
     scrollBarThumb(View content, ScrollBarLogic scrollBarLogic) {
         this.content = content;
-        scrollBarLogic.onThumbXChanged = this::setX;
-        scrollBarLogic.onThumbYChanged = this::setY;
+        scrollBarLogic.onThumbXChanged = (value, scroll) -> { if (scroll) setX(value); };
+        scrollBarLogic.onThumbYChanged = (value, scroll) -> { if (scroll) setY(value); };
         scrollBarLogic.onThumbWidthChanged = this::setWidth;
         scrollBarLogic.onThumbHeightChanged = this::setHeight;
         if (scrollBarLogic.getOrientation() == VERTICAL) {
