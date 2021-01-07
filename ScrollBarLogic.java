@@ -27,35 +27,19 @@ public class ScrollBarLogic {
 
     void setThumbSize() {
         if (mOrientation == VERTICAL) {
+            // this is exactly the same as
+            // scrollBarHeight * (viewportHeight / totalPageHeight)
             float thumbHeight = scrollBarHeight / (documentHeight / windowHeight);
             setThumbHeight((int) thumbHeight);
             // offset for height
-            float scrollBarPosition = thumbY;
-            float scrollBarEnd = scrollBarPosition + thumbHeight;
-            if (scrollBarEnd > scrollBarHeight) {
-                scrollBarPosition = scrollBarPosition - (scrollBarEnd - scrollBarHeight);
-                // dont scroll past start
-                if (scrollBarPosition <= 0) {
-                    setThumbY(0);
-                } else {
-                    setThumbY(scrollBarPosition);
-                }
-            }
+            computeThumbYPosition(thumbY, thumbHeight);
         } else {
+            // this is exactly the same as
+            // scrollBarWidth * (viewportWidth / totalPageWidth)
             float thumbWidth = scrollBarWidth / (documentWidth / windowWidth);
             setThumbWidth((int) thumbWidth);
             // offset for width
-            float scrollBarPosition = thumbX;
-            float scrollBarEnd = scrollBarPosition + thumbWidth;
-            if (scrollBarEnd > scrollBarWidth) {
-                scrollBarPosition = scrollBarPosition - (scrollBarEnd - scrollBarWidth);
-                // dont scroll past start
-                if (scrollBarPosition <= 0) {
-                    setThumbX(0);
-                } else {
-                    setThumbX(scrollBarPosition);
-                }
-            }
+            computeThumbXPosition(thumbX, thumbWidth);
         }
     }
 
@@ -104,33 +88,29 @@ public class ScrollBarLogic {
         }
     }
 
-    public void computeThumbYPosition(float scrollBarPosition) {
-        // dont scroll past start
+    public void computeThumbYPosition(float thumbY, float thumbHeight) {
+        float scrollBarPosition = thumbY;
         if (scrollBarPosition <= 0) {
             setThumbY(0);
         } else {
-            // dont scroll past end
-            float scrollBarEnd = scrollBarPosition + thumbHeightSaved;
-            if (scrollBarEnd > scrollBarHeight) {
-                setThumbY(scrollBarPosition - (scrollBarEnd - scrollBarHeight));
-            } else {
-                setThumbY(scrollBarPosition);
+            float thumbEnd = scrollBarPosition + thumbHeight;
+            if (thumbEnd > scrollBarHeight) {
+                scrollBarPosition = scrollBarPosition - (thumbEnd - scrollBarHeight);
             }
+            setThumbY(scrollBarPosition);
         }
     }
 
-    public void computeThumbXPosition(float scrollBarPosition) {
-        // dont scroll past start
+    public void computeThumbXPosition(float thumbX, float thumbWidth) {
+        float scrollBarPosition = thumbX;
         if (scrollBarPosition <= 0) {
             setThumbX(0);
         } else {
-            // dont scroll past end
-            float scrollBarEnd = scrollBarPosition + thumbWidthSaved;
-            if (scrollBarEnd > scrollBarWidth) {
-                setThumbX(scrollBarPosition - (scrollBarEnd - scrollBarWidth));
-            } else {
-                setThumbX(scrollBarPosition);
+            float thumbEnd = scrollBarPosition + thumbWidth;
+            if (thumbEnd > scrollBarWidth) {
+                scrollBarPosition = scrollBarPosition - (thumbEnd - scrollBarWidth);
             }
+            setThumbX(scrollBarPosition);
         }
     }
 
@@ -138,7 +118,6 @@ public class ScrollBarLogic {
     @IntDef({HORIZONTAL, VERTICAL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface OrientationMode {}
-
 
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -205,8 +184,16 @@ public class ScrollBarLogic {
         thumbWidthSaved = thumbWidth;
     }
 
+    public float getSavedThumbWidth() {
+        return thumbWidthSaved;
+    }
+
     public void saveThumbHeight() {
         thumbHeightSaved = thumbHeight;
+    }
+
+    public float getSavedThumbHeight() {
+        return thumbHeightSaved;
     }
 
     public void setScrollBarWidth(int scrollBarWidth) {

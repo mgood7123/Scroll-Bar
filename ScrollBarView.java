@@ -519,9 +519,9 @@ public class ScrollBarView extends FrameLayout {
             case MotionEvent.ACTION_MOVE:
                 if (!isResizing && isDragging) {
                     if (scrollBarLogic.getOrientation() == VERTICAL) {
-                        scrollBarLogic.computeThumbYPosition(currentRawY + downDY);
+                        scrollBarLogic.computeThumbYPosition(currentRawY + downDY, scrollBarLogic.getSavedThumbHeight());
                     } else {
-                        scrollBarLogic.computeThumbXPosition(currentRawX + downDX);
+                        scrollBarLogic.computeThumbXPosition(currentRawX + downDX, scrollBarLogic.getSavedThumbWidth());
                     }
                     return true;
                 } else if (isResizing && !isDragging) {
@@ -566,7 +566,7 @@ public class ScrollBarView extends FrameLayout {
                 isDragging = false;
                 isResizing = false;
                 scrollBarLogic.saveThumbHeight();
-                scrollBarLogic.saveThumbHeight();
+                scrollBarLogic.saveThumbWidth();
                 clipOriginalStartX = scrollBarLogic.getThumbX();
                 clipOriginalStartY = scrollBarLogic.getThumbY();
                 clipOriginalWidth = scrollBarLogic.getThumbWidth();
