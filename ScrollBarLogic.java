@@ -1,7 +1,5 @@
 package smallville7123.UI.ScrollBarView;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

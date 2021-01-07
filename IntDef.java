@@ -1,10 +1,10 @@
 package smallville7123.UI.ScrollBarView;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
  * Denotes that the annotated element of integer type, represents
