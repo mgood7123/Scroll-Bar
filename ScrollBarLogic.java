@@ -27,8 +27,7 @@ public class ScrollBarLogic {
 
     void setThumbSize() {
         if (mOrientation == VERTICAL) {
-            documentHeightDivWindowHeight = documentHeight / windowHeight;
-            float thumbHeight = scrollBarHeight / documentHeightDivWindowHeight;
+            float thumbHeight = scrollBarHeight / (documentHeight / windowHeight);
             setThumbHeight((int) thumbHeight);
             // offset for height
             float scrollBarPosition = thumbY;
@@ -43,8 +42,7 @@ public class ScrollBarLogic {
                 }
             }
         } else {
-            documentWidthDivWindowWidth = documentWidth / windowWidth;
-            float thumbWidth = scrollBarWidth / documentWidthDivWindowWidth;
+            float thumbWidth = scrollBarWidth / (documentWidth / windowWidth);
             setThumbWidth((int) thumbWidth);
             // offset for width
             float scrollBarPosition = thumbX;
@@ -185,8 +183,6 @@ public class ScrollBarLogic {
     int                     documentScrollY;
     private float           documentWidth;
     private float           documentHeight;
-    float                   documentWidthDivWindowWidth;
-    float                   documentHeightDivWindowHeight;
     float                   absoluteOffset;
 
     public float getThumbX() {
