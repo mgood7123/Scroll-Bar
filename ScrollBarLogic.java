@@ -32,9 +32,8 @@ public class ScrollBarLogic {
 
     void setThumbSize() {
         if (mOrientation == VERTICAL) {
-            // this is exactly the same as
-            // scrollBarHeight * (viewportHeight / totalPageHeight)
-            float thumbHeight = scrollBarHeight / (documentHeight / windowHeight);
+            float visiblePercent = windowHeight / documentHeight;
+            float thumbHeight = scrollBarHeight * visiblePercent;
             setThumbHeight((int) thumbHeight);
             // offset for height
             computeThumbYPosition(thumbY, thumbHeight, DO_SCROLL);
