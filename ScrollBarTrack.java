@@ -213,6 +213,7 @@ public class ScrollBarTrack extends FrameLayout {
             getWindowSize();
             if (getDocumentSize()) {
                 scrollBarLogic.computeThumbSize();
+//                scrollBarLogic.computeThumbPosition();
                 scrollBarLogic.computeDocumentScroll();
                 scrollDocument();
             }

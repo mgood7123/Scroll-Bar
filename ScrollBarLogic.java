@@ -25,18 +25,26 @@ public class ScrollBarLogic {
         }
     }
 
-    void computeThumbX() {
+    private void computeThumbX() {
         float documentPercentage = documentWidth / documentScrollX;
         float thumbPercentage = documentPercentage;
         float thumbPosition = thumbWidth * thumbPercentage;
         setThumbX(thumbPosition, DO_NOT_SCROLL);
     }
 
-    void computeThumbY() {
+    private void computeThumbY() {
         float documentPercentage = documentHeight / documentScrollY;
         float thumbPercentage = documentPercentage;
         float thumbPosition = thumbHeight * thumbPercentage;
         setThumbY(thumbPosition, DO_NOT_SCROLL);
+    }
+
+    void computeThumbPosition() {
+        if (mOrientation == VERTICAL) {
+            computeThumbY();
+        } else {
+            computeThumbX();
+        }
     }
 
     // the thumb size is only set when:
@@ -49,13 +57,10 @@ public class ScrollBarLogic {
             float visiblePercent = windowHeight / documentHeight;
             float thumbHeight = scrollBarHeight * visiblePercent;
             setThumbHeight((int) thumbHeight);
-//            computeThumbY();
         } else {
-            // this is exactly the same as
-            // scrollBarWidth * (viewportWidth / totalPageWidth)
-            float thumbWidth = scrollBarWidth / (documentWidth / windowWidth);
+            float visiblePercent = windowWidth / documentWidth;
+            float thumbWidth = scrollBarWidth * visiblePercent;
             setThumbWidth((int) thumbWidth);
-//            computeThumbX();
         }
     }
 
