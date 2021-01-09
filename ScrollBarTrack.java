@@ -208,13 +208,13 @@ public class ScrollBarTrack extends FrameLayout {
         super.onDraw(canvas);
         scrollBarLogic.setScrollBarWidth(getWidth());
         scrollBarLogic.setScrollBarHeight(getHeight());
-        scrollBarLogic.adjustThumb();
+        scrollBarLogic.fillThumb();
         if (document != null) {
             getWindowSize();
             if (getDocumentSize()) {
-                scrollBarLogic.setThumbSize();
-                scrollBarLogic.computeDocumentScroll();
-                scrollDocument();
+                scrollBarLogic.computeThumbSize();
+//                scrollBarLogic.computeDocumentScroll();
+//                scrollDocument();
             }
         }
     }
@@ -387,16 +387,16 @@ public class ScrollBarTrack extends FrameLayout {
             case MotionEvent.ACTION_MOVE:
                 if (!isResizing && isDragging) {
                     if (scrollBarLogic.getOrientation() == VERTICAL) {
-                        scrollBarLogic.computeThumbYPosition(
+                        scrollBarLogic.clampThumbYPosition(
                                 currentRawY + downDY,
                                 scrollBarLogic.getSavedThumbHeight(),
-                                scrollBarLogic.DO_SCROLL
+                                ScrollBarLogic.DO_SCROLL
                         );
                     } else {
-                        scrollBarLogic.computeThumbXPosition(
+                        scrollBarLogic.clampThumbXPosition(
                                 currentRawX + downDX,
                                 scrollBarLogic.getSavedThumbWidth(),
-                                scrollBarLogic.DO_SCROLL
+                                ScrollBarLogic.DO_SCROLL
                         );
                     }
                     return true;
