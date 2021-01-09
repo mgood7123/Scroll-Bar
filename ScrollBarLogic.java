@@ -26,17 +26,25 @@ public class ScrollBarLogic {
     }
 
     private void computeThumbX() {
-        float documentPercentage = documentWidth / documentScrollX;
-        float thumbPercentage = documentPercentage;
-        float thumbPosition = thumbWidth * thumbPercentage;
-        setThumbX(thumbPosition, DO_NOT_SCROLL);
+        if (documentScrollX == 0) {
+            setThumbX(0, DO_NOT_SCROLL);
+        } else {
+            float documentPercentage = documentWidth / documentScrollX;
+            float thumbPercentage = documentPercentage;
+            float thumbPosition = thumbWidth * thumbPercentage;
+            setThumbX(thumbPosition, DO_NOT_SCROLL);
+        }
     }
 
     private void computeThumbY() {
-        float documentPercentage = documentHeight / documentScrollY;
-        float thumbPercentage = documentPercentage;
-        float thumbPosition = thumbHeight * thumbPercentage;
-        setThumbY(thumbPosition, DO_NOT_SCROLL);
+        if (documentScrollY == 0) {
+            setThumbY(0, DO_NOT_SCROLL);
+        } else {
+            float documentPercentage = documentHeight / documentScrollY;
+            float thumbPercentage = documentPercentage;
+            float thumbPosition = thumbHeight * thumbPercentage;
+            setThumbY(thumbPosition, DO_NOT_SCROLL);
+        }
     }
 
     void computeThumbPosition() {
@@ -54,13 +62,21 @@ public class ScrollBarLogic {
 
     void computeThumbSize() {
         if (mOrientation == VERTICAL) {
-            float visiblePercent = windowHeight / documentHeight;
-            float thumbHeight = scrollBarHeight * visiblePercent;
-            setThumbHeight((int) thumbHeight);
+            if (windowHeight == 0 || documentHeight == 0 || scrollBarHeight == 0) {
+                setThumbHeight(0);
+            } else {
+                float visiblePercent = windowHeight / documentHeight;
+                float thumbHeight = scrollBarHeight * visiblePercent;
+                setThumbHeight((int) thumbHeight);
+            }
         } else {
-            float visiblePercent = windowWidth / documentWidth;
-            float thumbWidth = scrollBarWidth * visiblePercent;
-            setThumbWidth((int) thumbWidth);
+            if (windowWidth == 0 || documentWidth == 0 || scrollBarWidth == 0) {
+                setThumbWidth(0);
+            } else {
+                float visiblePercent = windowWidth / documentWidth;
+                float thumbWidth = scrollBarWidth * visiblePercent;
+                setThumbWidth((int) thumbWidth);
+            }
         }
     }
 
