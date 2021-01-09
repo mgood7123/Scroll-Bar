@@ -49,13 +49,13 @@ public class ScrollBarLogic {
             float visiblePercent = windowHeight / documentHeight;
             float thumbHeight = scrollBarHeight * visiblePercent;
             setThumbHeight((int) thumbHeight);
-            computeThumbY();
+//            computeThumbY();
         } else {
             // this is exactly the same as
             // scrollBarWidth * (viewportWidth / totalPageWidth)
             float thumbWidth = scrollBarWidth / (documentWidth / windowWidth);
             setThumbWidth((int) thumbWidth);
-            computeThumbX();
+//            computeThumbX();
         }
     }
 
