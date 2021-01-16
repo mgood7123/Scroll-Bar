@@ -32,6 +32,47 @@ scrollBar.setOrientation(ScrollBarView.VERTICAL);
 scrollBar.attachTo(scrollView);
 ```
 
+# Example
+
+here is an example of using ScrollBars
+to make a non scrollable view, scrollable
+
+```Java
+// create a new view that will draw a red box
+FrameLayout box = new FrameLayout(context, attrs) {
+    Paint paintRed;
+
+    {
+        // we have stuff to draw
+        setWillNotDraw(!true);
+        paintRed = new Paint();
+        paintRed.setColor(Color.argb(255, 255, 0, 0));
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        // draw a 500x500 red box at location 500x500
+        canvas.drawRect(500, 500, 1000, 1000, paintRed);
+    }
+};
+
+// set the box view's size to 4000x4000
+box.setLayoutParams(new LayoutParams(4000, 4000));
+
+// create a container for the box to sit in
+FrameLayout container = new FrameLayout(context, attrs);
+
+// add the box to the container
+container.addView(box);
+
+// attach scroll bars to container
+horizontalScrollBar.attachTo(container);
+verticalScrollBar.attachTo(container);
+
+// add container to your view however you wish
+linearLayoutHorizontal.addView(container, new LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+```
+
 # View Registration
 
 View Registration is a powerful tool

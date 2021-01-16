@@ -54,6 +54,11 @@ public class ScrollBarView extends FrameLayout {
         init(context, attrs);
     }
 
+    public ScrollBarView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        init(context, attrs);
+    }
+
     Paint paintGrey;
     Paint paintPurple;
 
