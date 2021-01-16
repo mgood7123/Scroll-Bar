@@ -60,7 +60,7 @@ public void registerView(
 );
 ```
 
-an example is
+an example of this is
 
 ```Java
 myScrollBarView.registerView (
