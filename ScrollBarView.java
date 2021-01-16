@@ -63,6 +63,10 @@ public class ScrollBarView extends FrameLayout {
     Paint paintPurple;
 
     private void init(Context context, AttributeSet attrs) {
+
+        // make sure we will draw
+        setWillNotDraw(false);
+
         paintGrey = new Paint();
         paintGrey.setColor(Color.rgb(155, 155, 155));
         paintPurple = new Paint();
