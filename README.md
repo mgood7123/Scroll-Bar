@@ -82,7 +82,7 @@ myScrollBarView.registerView (
 
 this is done for you in ScrollBarViews constructor, along with ViewGroup, ScrollView, HorizontalScrollView, and RecyclerView
 
-this is what the registration looks like for RecyclerView, a complex looking class
+this is what the registration looks like for RecyclerView, which is a more complex class
 
 ```Java
 myScrollBarView.registerView(
@@ -125,7 +125,7 @@ myScrollBarView.registerView(
 
 with this, the scroll bar can now work with RecyclerView
 
-do note that, an additional step is required to be fully compatible with recyclerView:
+do note, that an additional step is required to be fully compatible with recyclerView:
 
 ```Java
 recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
