@@ -239,8 +239,7 @@ public class ScrollBarView extends FrameLayout {
     }
 
     @Override
-    public void draw(Canvas canvas) {
-        super.draw(canvas);
+    public void onDraw(Canvas canvas) {
         if (thumbSize < trackLength) {
             if (trackWidth != 0 && trackHeight != 0 && thumbWidth != 0 && thumbHeight != 0) {
                 drawTrack(canvas, paintGrey);
