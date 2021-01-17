@@ -160,6 +160,7 @@ since View is implicitly registered and ImageView extends View
 this may or may not produce correct behaviour depending
 on how ImageView displays its contents
 
+
 ```Java
 /**
  * Registers a view for use with the scroll bar
@@ -260,3 +261,8 @@ recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 ```
 
 this allows for the scroll bar thumb position's to update when the RecyclerView is scrolled directly via swiping
+
+this is because RecyclerView does NOT store its scroll position
+in getScrollX() and getScrollY() and these will always return 0
+
+so we instead need to keep track of the current scroll position ourselves
