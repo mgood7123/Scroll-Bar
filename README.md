@@ -280,7 +280,7 @@ cause the view to scroll to position 0
 
 then invoking scrollBy(x,y) with an absolute position
 
-for example
+for example, the following is equivalent to `view.scrollTo(0, dest);`
 
 ```Java
 // scroll to 0 on Y axis
