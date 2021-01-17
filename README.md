@@ -266,3 +266,21 @@ this is because RecyclerView does NOT store its scroll position
 in getScrollX() and getScrollY() and these will always return 0
 
 so we instead need to keep track of the current scroll position ourselves
+
+additionally, RecyclerView does not support absolute scrolling via scrollTo()
+
+absolute scrolling is the default that most view's support
+
+if a view requires relative scrolling
+then absolute scrolling can be accomplished by
+
+first invoking scrollBy(x,y) with the negative
+value of the current scroll position, this will
+cause the view to scroll to position 0
+
+then invoking scrollBy(x,y) with an absolute position
+
+for example
+
+view.scrollBy(0, -srcY); // scroll to 0 on Y axis
+view.scrollBy(0, dest); // scroll to absolute position on Y axis
