@@ -51,7 +51,7 @@ FrameLayout box = new FrameLayout(context, attrs) {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        // draw a 500x500 red box at location 500x500
+        // draw a 500x500 red box at location 500, 500
         canvas.drawRect(500, 500, 1000, 1000, paintRed);
     }
 };
@@ -60,16 +60,78 @@ FrameLayout box = new FrameLayout(context, attrs) {
 box.setLayoutParams(new LayoutParams(4000, 4000));
 
 // create a container for the box to sit in
+// this container will act as a window into the view
+//
+// the idea is that we do this:
+//
+//  ---------------------
+// |         VIEW        |
+// |                     |
+// |     -----------     |
+// |    | CONTAINER |    |
+// |    |           |    |
+// |    |           |    |
+// |    |           |    |
+// |    | CONTAINER |    |
+// |     -----------     |
+// |                     |
+// |         VIEW        |
+//  ---------------------
+//
+// here, the container is smaller than the view
+// the container may be added to, and removed from, any view
+//
+// to scroll the contents of the container
+// we do not move the container itself
+// but instead move the contents of the container: VIEW
+//
+// by moving VIEW instead of CONTAINER, we ensure two things
+//
+// 1. the container's location in the current view is not modified
+//    this is very important since do not want the container to move
+//    around and causing other view's trouble
+//
+// 2. the container can be placed at any location
+//    and the location of its contents will always remain
+//    RELATIVE to the location of the view
+//
+//    for example
+//    if the container is at location 0, 0
+//    and the contents is at location -30, -30
+//
+//    then if we move the container to location 40, 40
+//    then the contents will still be at location -30, -30
+//
+//    but the contents position inside the container
+//    will not change as if the contents is now located
+//    at 10, 10
+//
+//    however it is important to remember that even though
+//    the container has moved from 0, 0 to 40, 40
+//    the contents is still located at -30, -30
+//
 FrameLayout container = new FrameLayout(context, attrs);
 
 // add the box to the container
 container.addView(box);
 
-// attach scroll bars to container
+// attach scroll bars to the container
 horizontalScrollBar.attachTo(container);
 verticalScrollBar.attachTo(container);
 
-// add container to your view however you wish
+// add the container to your view however you wish
+//
+// IMPORTANT:
+// if we where to instead attach scroll bars
+// to linearLayoutHorizontal, it would behave in an
+// unpredictable manner
+// due to LinearLayoutHorizontal containing views
+// other than our content
+// and because we have not taught the scroll bars how
+// to interact with a LinearLayout view, the scroll bars
+// will treat the LinearLayout view as
+// what ever the LinearLayout's top most supported view
+// is, which is ViewGroup
 linearLayoutHorizontal.addView(container, new LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
 ```
 
@@ -78,6 +140,25 @@ linearLayoutHorizontal.addView(container, new LinearLayout.LayoutParams(MATCH_PA
 View Registration is a powerful tool
 that allows the scroll bar to be compatible
 with any View
+
+Registering a view will teach the scroll bar
+how it should interact with that view when it is attached
+to that view
+
+attaching a scrollbar to a view which is not registered
+might result in unpredictable behaviour from the scroll bar
+especially if the view is complex
+
+this is not a requirement since the scroll bar
+will treat its attached view as the top most supported view
+
+for example
+if you attach a scroll bar to an ImageView
+then the scroll bar will treat the ImageView as a View
+since View is implicitly registered and ImageView extends View
+
+this may or may not produce correct behaviour depending
+on how ImageView displays its contents
 
 ```Java
 /**
