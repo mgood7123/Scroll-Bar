@@ -282,5 +282,9 @@ then invoking scrollBy(x,y) with an absolute position
 
 for example
 
-view.scrollBy(0, -srcY); // scroll to 0 on Y axis
-view.scrollBy(0, dest); // scroll to absolute position on Y axis
+```Java
+// scroll to 0 on Y axis
+view.scrollBy(0, -srcY);
+// scroll to absolute position on Y axis
+view.scrollBy(0, dest);
+```
