@@ -27,7 +27,7 @@ import smallville7123.UI.ScrollBarView.ChangeDetectors.Float_Detector;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public class ScrollBarView extends FrameLayout {
+public class ScrollBarView extends View {
 
     public static final Pair<Boolean, Integer> FAIL = new Pair<>(false, -1);
 
