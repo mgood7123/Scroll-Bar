@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,6 +21,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import smallville7123.UI.ScrollBarView.ChangeDetectors.Float_Detector;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -249,23 +250,45 @@ public class ScrollBarView extends FrameLayout {
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (thumbSize < trackLength) {
-            if (trackWidth != 0 && trackHeight != 0 && thumbWidth != 0 && thumbHeight != 0) {
-                drawTrack(canvas, paintGrey);
-                drawThumb(canvas, paintPurple);
+        synchronized (lock) {
+            if (viewport == null) return;
+            if (mOrientation == HORIZONTAL) viewportSize.set(viewport.getMeasuredWidth());
+            else if (mOrientation == VERTICAL) viewportSize.set(viewport.getMeasuredHeight());
+            if (viewportSize.get() == 0) {
+                return;
+            }
+            if (mOrientation == HORIZONTAL) {
+                viewportOffset.set(getViewportScrollX());
+                getContentSize();
+                if (viewportOffset.changed() || contentSize.changed()) {
+                    computeLayout(getWidth(), getHeight());
+                }
+            } else if (mOrientation == VERTICAL) {
+                viewportOffset.set(getViewportScrollY());
+                getContentSize();
+
+                if (viewportOffset.changed() || contentSize.changed()) {
+                    computeLayout(getWidth(), getHeight());
+                }
+            }
+            if (thumbSize < trackLength) {
+                if (trackWidth != 0 && trackHeight != 0 && thumbWidth != 0 && thumbHeight != 0) {
+                    drawTrack(canvas, paintGrey);
+                    drawThumb(canvas, paintPurple);
+                }
             }
         }
+        invalidate();
     }
 
     int minimum = 10;
     int maximum = 10;
-    float viewportSize = 0;
-    float oldViewportSize = 0;
-    float contentSize = 0;
+    Float_Detector viewportSize = new Float_Detector(0);
+    Float_Detector viewportOffset = new Float_Detector(0);
+    Float_Detector contentSize = new Float_Detector(0);
     float maximumContentOffset = 0;
     float trackLength = 0;
     int thumbSize = 0;
-    float viewportOffset = 0;
     boolean allowOverflow = false;
 
     public abstract class OverflowRunnable {
@@ -461,7 +484,7 @@ public class ScrollBarView extends FrameLayout {
                 if (registeredView.clazz.isInstance(viewport)) {
                     Pair<Boolean, Integer> result = registeredView.howToObtainTheViewSize.run(viewport, mOrientation);
                     if (result.first) {
-                        contentSize = result.second;
+                        contentSize.set(result.second);
                         return true;
                     }
                 }
@@ -487,97 +510,9 @@ public class ScrollBarView extends FrameLayout {
         }
     }
 
-    Thread thread;
-    AtomicBoolean monitor = new AtomicBoolean(false);
     final Object lock = new Object();
 
-    void stopThread() {
-        if (thread != null) {
-            monitor.set(false);
-            while (true) {
-                try {
-                    thread.join();
-                } catch (InterruptedException e) {
-                    continue;
-                }
-                break;
-            }
-            thread = null;
-        }
-    }
-
-    void createThread() {
-        if (thread != null) stopThread();
-        monitor.set(true);
-        thread = new Thread(() -> {
-            float oldViewportOffset = 0;
-            float oldContentSize = 0;
-            while (monitor.get()) {
-                if (mOrientation == HORIZONTAL && viewport != null) {
-                    synchronized (lock) {
-                        oldViewportOffset = viewportOffset;
-                        viewportOffset = getViewportScrollX();
-
-                        oldContentSize = contentSize;
-                        getContentSize();
-
-                        if (viewportOffset != oldViewportOffset || contentSize != oldContentSize) {
-                            computeLayout(getWidth(), getHeight());
-                            postInvalidate();
-                        }
-                    }
-                } else if (mOrientation == VERTICAL && viewport != null) {
-                    synchronized (lock) {
-                        oldViewportOffset = viewportOffset;
-                        viewportOffset = getViewportScrollY();
-
-                        oldContentSize = contentSize;
-                        getContentSize();
-
-                        if (viewportOffset != oldViewportOffset || contentSize != oldContentSize) {
-                            computeLayout(getWidth(), getHeight());
-                            postInvalidate();
-                        }
-                    }
-                }
-                while(true) {
-                    try {
-                        Thread.sleep(0, 1);
-                    } catch (InterruptedException e) {
-                        continue;
-                    }
-                    break;
-                }
-            }
-        });
-        thread.start();
-    }
-
-    @Override
-    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
-        super.onVisibilityChanged(changedView, visibility);
-        switch (visibility) {
-            case VISIBLE:
-                createThread();
-                break;
-            case View.INVISIBLE:
-            case View.GONE:
-                stopThread();
-                break;
-        }
-    }
-
     void computeLayout(int w, int h) {
-        if (viewport == null) return;
-        oldViewportSize = viewportSize;
-
-        if (mOrientation == HORIZONTAL) viewportSize = viewport.getMeasuredWidth();
-        else if (mOrientation == VERTICAL) viewportSize = viewport.getMeasuredHeight();
-        if (viewportSize == 0) {
-            return;
-        }
-        getContentSize();
-
         if (mOrientation == HORIZONTAL) {
             maximum = w;
             trackLength = w;
@@ -592,8 +527,8 @@ public class ScrollBarView extends FrameLayout {
             thumbWidth = w;
         }
 
-        maximumContentOffset = contentSize-viewportSize;
-        thumbSize = (int) ((viewportSize/contentSize) * trackLength);
+        maximumContentOffset = contentSize.get()-viewportSize.get();
+        thumbSize = (int) ((viewportSize.get()/contentSize.get()) * trackLength);
         thumbSize = max(thumbSize, minimum);
         thumbSize = min(thumbSize, maximum);
         float maximumThumbPosition = trackLength-thumbSize;
@@ -606,18 +541,18 @@ public class ScrollBarView extends FrameLayout {
                 thumbX = 0;
                 if (!allowOverflow) {
                     if (onOverflow != null) {
-                        onOverflow.run((int) contentSize);
+                        onOverflow.run((int) contentSize.get());
                     }
                 }
             } else {
                 if (viewport != null) {
-                    viewportOffset = getViewportScrollX();
-                    if (!allowOverflow && viewportOffset > 0 && viewportOffset > maximumContentOffset) {
-                        float offset = viewportOffset - maximumContentOffset;
-                        viewportOffset -= offset;
-                        setViewportScrollX((int) viewportOffset);
+                    viewportOffset.set(getViewportScrollX());
+                    if (!allowOverflow && viewportOffset.get() > 0 && viewportOffset.get() > maximumContentOffset) {
+                        float offset = viewportOffset.get() - maximumContentOffset;
+                        viewportOffset.set(viewportOffset.get() - offset);
+                        setViewportScrollX((int) viewportOffset.get());
                     }
-                    thumbX = (int) (maximumThumbPosition * (viewportOffset / maximumContentOffset));
+                    thumbX = (int) (maximumThumbPosition * (viewportOffset.get() / maximumContentOffset));
                 }
             }
         } else {
@@ -628,18 +563,18 @@ public class ScrollBarView extends FrameLayout {
                 thumbY = 0;
                 if (!allowOverflow) {
                     if (onOverflow != null) {
-                        onOverflow.run((int) contentSize);
+                        onOverflow.run((int) contentSize.get());
                     }
                 }
             } else {
                 if (viewport != null) {
-                    viewportOffset = getViewportScrollY();
-                    if (!allowOverflow && viewportOffset > 0 && viewportOffset > maximumContentOffset) {
-                        float offset = viewportOffset - maximumContentOffset;
-                        viewportOffset -= offset;
-                        setViewportScrollY((int) viewportOffset);
+                    viewportOffset.set(getViewportScrollY());
+                    if (!allowOverflow && viewportOffset.get() > 0 && viewportOffset.get() > maximumContentOffset) {
+                        float offset = viewportOffset.get() - maximumContentOffset;
+                        viewportOffset.set(viewportOffset.get() - offset);
+                        setViewportScrollY((int) viewportOffset.get());
                     }
-                    thumbY = (int) (maximumThumbPosition * (viewportOffset / maximumContentOffset));
+                    thumbY = (int) (maximumThumbPosition * (viewportOffset.get() / maximumContentOffset));
                 }
             }
         }
@@ -649,6 +584,13 @@ public class ScrollBarView extends FrameLayout {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         synchronized (lock) {
+            if (viewport == null) return;
+            if (mOrientation == HORIZONTAL) viewportSize.set(viewport.getMeasuredWidth());
+            else if (mOrientation == VERTICAL) viewportSize.set(viewport.getMeasuredHeight());
+            if (viewportSize.get() == 0) {
+                return;
+            }
+            getContentSize();
             computeLayout(w, h);
         }
     }
@@ -675,7 +617,6 @@ public class ScrollBarView extends FrameLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         final int action = event.getAction();
-        Log.d(TAG, "MotionEvent.actionToString(action) = [" + (MotionEvent.actionToString(action)) + "]");
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 if (mOrientation == HORIZONTAL) {
@@ -728,8 +669,8 @@ public class ScrollBarView extends FrameLayout {
                             multiplier = (float)thumbY / (float) (trackHeight - thumbHeight);
                         }
                         getContentSize();
-                        float documentWidth = contentSize;
-                        float absoluteOffset = multiplier * (documentWidth - viewportSize);
+                        float documentWidth = contentSize.get();
+                        float absoluteOffset = multiplier * (documentWidth - viewportSize.get());
                         scrollViewport(absoluteOffset);
                     }
                 }
