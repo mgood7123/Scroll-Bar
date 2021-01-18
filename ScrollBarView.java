@@ -79,25 +79,20 @@ public class ScrollBarView extends View {
 
         registerView(
                 RecyclerView.class,
-                (view, mOrientation) -> {
+                (view, orientation) -> {
                     RecyclerView recyclerView = (RecyclerView) view;
                     RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-                    if (layoutManager != null) {
-                        if (layoutManager.getChildCount() != 0) {
-                            View child = layoutManager.getChildAt(0);
-                            if (child != null) {
-                                int itemCount = layoutManager.getItemCount();
-                                int size = 0;
-                                if (mOrientation == VERTICAL) {
-                                    size = child.getHeight();
-                                } else {
-                                    size = child.getWidth();
-                                }
-                                return SUCCESS(size * itemCount);
-                            }
-                        }
+                    if (layoutManager == null) return FAIL;
+                    View child = layoutManager.getChildAt(0);
+                    if (child == null) return FAIL;
+                    int itemCount = layoutManager.getItemCount();
+                    int size;
+                    if (orientation == VERTICAL) {
+                        size = child.getHeight();
+                    } else {
+                        size = child.getWidth();
                     }
-                    return FAIL;
+                    return SUCCESS(size * itemCount);
                 },
                 (view, orientation, srcX, srcY, dest) -> {
                     if (orientation == VERTICAL) {
@@ -117,11 +112,13 @@ public class ScrollBarView extends View {
         registerView(
                 View.class,
                 (view, orientation) -> {
+                    int size;
                     if (orientation == VERTICAL) {
-                        return ScrollBarView.SUCCESS(view.getHeight());
+                        size = view.getHeight();
                     } else {
-                        return ScrollBarView.SUCCESS(view.getWidth());
+                        size = view.getWidth();
                     }
+                    return SUCCESS(size);
                 },
                 defaultHowToScrollTheView,
                 defaultSetScrollX,
@@ -134,15 +131,15 @@ public class ScrollBarView extends View {
                 ViewGroup.class,
                 (view, orientation) -> {
                     ViewGroup viewGroup = (ViewGroup) view;
-                    if (viewGroup.getChildCount() == 0) {
-                        return ScrollBarView.FAIL;
-                    }
                     View child = viewGroup.getChildAt(0);
+                    if (child == null) return FAIL;
+                    int size;
                     if (orientation == VERTICAL) {
-                        return ScrollBarView.SUCCESS(child.getHeight());
+                        size = child.getHeight();
                     } else {
-                        return ScrollBarView.SUCCESS(child.getWidth());
+                        size = child.getWidth();
                     }
+                    return SUCCESS(size);
                 },
                 defaultHowToScrollTheView,
                 defaultSetScrollX,
@@ -153,18 +150,14 @@ public class ScrollBarView extends View {
 
         registerView(
                 ScrollView.class,
-                (view, mOrientation) -> {
+                (view, orientation) -> {
                     ScrollView scrollView = (ScrollView) view;
-                    if (mOrientation == HORIZONTAL) {
+                    if (orientation == HORIZONTAL) {
                         throw new RuntimeException("attempting to obtain a scroll view of invalid scrolling direction, needed horizontal, got vertical");
                     }
-                    if (scrollView.getChildCount() != 0) {
-                        View child = scrollView.getChildAt(0);
-                        if (child != null) {
-                            return SUCCESS(child.getWidth());
-                        }
-                    }
-                    return FAIL;
+                    View child = scrollView.getChildAt(0);
+                    if (child == null) return FAIL;
+                    return SUCCESS(child.getWidth());
                 },
                 defaultHowToScrollTheView,
                 defaultSetScrollX,
@@ -175,24 +168,45 @@ public class ScrollBarView extends View {
 
         registerView(
                 HorizontalScrollView.class,
-                (view, mOrientation) -> {
+                (view, orientation) -> {
                     HorizontalScrollView horizontalScrollView = (HorizontalScrollView) view;
-                    if (mOrientation == VERTICAL) {
+                    if (orientation == VERTICAL) {
                         throw new RuntimeException("attempting to obtain a scroll view of invalid scrolling direction, needed vertical, got horizontal");
                     }
-                    if (horizontalScrollView.getChildCount() != 0) {
-                        View child = horizontalScrollView.getChildAt(0);
-                        if (child != null) {
-                            return SUCCESS(child.getWidth());
-                        }
-                    }
-                    return FAIL;
+                    View child = horizontalScrollView.getChildAt(0);
+                    if (child == null) return FAIL;
+                    return SUCCESS(child.getWidth());
                 },
                 defaultHowToScrollTheView,
                 defaultSetScrollX,
                 defaultSetScrollY,
                 defaultGetScrollX,
                 defaultGetScrollY
+        );
+
+        registerView(
+                CanvasView.class,
+                (view, orientation) -> {
+                    CanvasView canvasView = (CanvasView) view;
+                    int size;
+                    if (orientation == VERTICAL) {
+                        size = canvasView.canvasDrawer.getHeight();
+                    } else {
+                        size = canvasView.canvasDrawer.getWidth();
+                    }
+                    return SUCCESS(size);
+                },
+                (view, orientation, srcX, srcY, dest) -> {
+                    if (orientation == VERTICAL) {
+                        ((CanvasView) view).canvasDrawer.scrollTo(srcX, dest);
+                    } else {
+                        ((CanvasView) view).canvasDrawer.scrollTo(dest, srcY);
+                    }
+                },
+                (view, value) -> ((CanvasView) view).canvasDrawer.setScrollX(value),
+                (view, value) -> ((CanvasView) view).canvasDrawer.setScrollY(value),
+                view -> ((CanvasView) view).canvasDrawer.getScrollX(),
+                view -> ((CanvasView) view).canvasDrawer.getScrollY()
         );
     }
 
@@ -315,14 +329,14 @@ public class ScrollBarView extends View {
      * classes
      * <br>
      * <br>
-     * return: ScrollBarView.SUCCESS(totalSize)
+     * return: SUCCESS(totalSize)
      * <br>
      * return this when the total
      * size of the view has been
      * found
      * <br>
      * <br>
-     * return: ScrollBarView.FAIL
+     * return: FAIL
      * <br>
      * return this when the total
      * size of the view cannot be
