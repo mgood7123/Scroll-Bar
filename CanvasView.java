@@ -55,64 +55,94 @@ public class CanvasView extends CanvasViewBase {
     final protected void onDraw(Canvas realCanvas) {
         super.onDraw(realCanvas);
         onDrawCanvas(canvasDrawer);
-        realCanvas.drawBitmap(bitmap, -canvasDrawer.mScrollX, -canvasDrawer.mScrollY, null);
+        Scroller<CanvasDrawer> viewScroller = canvasDrawer.getViewScroller();
+        realCanvas.drawBitmap(bitmap, -viewScroller.mScrollX, -viewScroller.mScrollY, null);
     }
-
 
     // DEPRECIATED
 
     /**
-     * @deprecated please call {@link CanvasDrawer#setOnScrollChangeListener(CanvasDrawer.OnScrollChangeListener)} instead
+     * @deprecated please call
+     * {@link
+     *     Scroller#setOnScrollChangeListener(Scroller.OnScrollChangeListener)
+     *     canvasDrawer.viewScroller.setOnScrollChangeListener(Scroller.OnScrollChangeListener)
+     * }
+     * instead
      */
     @Override
     @Deprecated
     public void setOnScrollChangeListener(OnScrollChangeListener l) {
-        throw new RuntimeException("please call canvasDrawer.setOnScrollChangeListener(CanvasDrawer.OnScrollChangeListener) instead");
+        throw new RuntimeException("please call canvasDrawer.viewScroller.setOnScrollChangeListener(CanvasDrawer.OnScrollChangeListener) instead");
     }
 
     /**
-     * @deprecated please call {@link CanvasDrawer#setScrollX(int)} instead
+     * @deprecated please call
+     * {@link
+     *     Scroller#setScrollX(int)
+     *     canvasDrawer.viewScroller.setScrollX(int)
+     * }
+     * instead
      */
     @Override
     @Deprecated
     public void setScrollX(int value) {
-        throw new RuntimeException("please call canvasDrawer.setScrollX(int) instead");
+        throw new RuntimeException("please call canvasDrawer.viewScroller.setScrollX(int) instead");
     }
 
     /**
-     * @deprecated please call {@link CanvasDrawer#setScrollY(int)} instead
+     * @deprecated please call
+     * {@link
+     *     Scroller#setScrollY(int)
+     *     canvasDrawer.viewScroller.setScrollY(int)
+     * }
+     * instead
      */
     @Override
     @Deprecated
     public void setScrollY(int value) {
-        throw new RuntimeException("please call canvasDrawer.setScrollY(int) instead");
+        throw new RuntimeException("please call canvasDrawer.viewScroller.setScrollY(int) instead");
     }
 
     /**
-     * @deprecated please call {@link CanvasDrawer#scrollTo(int, int)} instead
+     * @deprecated please call
+     * {@link
+     *     Scroller#scrollTo(int, int)
+     *     canvasDrawer.viewScroller.scrollTo(int, int)
+     * }
+     * instead
      */
     @Override
     @Deprecated
     public void scrollTo(int x, int y) {
-        throw new RuntimeException("please call canvasDrawer.scrollTo(int, int) instead");
+        throw new RuntimeException("please call canvasDrawer.viewScroller.scrollTo(int, int) instead");
     }
 
     /**
-     * @deprecated please call {@link CanvasDrawer#scrollBy(int, int)} instead
+     * @deprecated please call
+     * {@link
+     *     Scroller#scrollBy(int, int)
+     *     canvasDrawer.viewScroller.scrollBy(int, int)
+     * }
+     * instead
      */
     @Override
     @Deprecated
     public void scrollBy(int x, int y) {
-        throw new RuntimeException("please call canvasDrawer.scrollBy(int, int) instead");
+        throw new RuntimeException("please call canvasDrawer.viewScroller.scrollBy(int, int) instead");
     }
 
     /**
-     * @deprecated please call {@link CanvasDrawer#onScrollChanged(int, int, int, int)} instead
+     * @deprecated please call
+     * {@link
+     *     Scroller#onScrollChanged(int, int, int, int)
+     *     canvasDrawer.viewScroller.onScrollChanged(int, int, int, int)
+     * }
+     * instead
      */
     @Override
     @Deprecated
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        throw new RuntimeException("please call canvasDrawer.onScrollChanged(int, int, int, int) instead");
+        throw new RuntimeException("please call canvasDrawer.viewScroller.onScrollChanged(int, int, int, int) instead");
     }
 
 }

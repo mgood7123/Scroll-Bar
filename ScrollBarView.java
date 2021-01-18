@@ -198,15 +198,15 @@ public class ScrollBarView extends View {
                 },
                 (view, orientation, srcX, srcY, dest) -> {
                     if (orientation == VERTICAL) {
-                        ((CanvasView) view).canvasDrawer.scrollTo(srcX, dest);
+                        ((CanvasView) view).canvasDrawer.getViewScroller().scrollTo(srcX, dest);
                     } else {
-                        ((CanvasView) view).canvasDrawer.scrollTo(dest, srcY);
+                        ((CanvasView) view).canvasDrawer.getViewScroller().scrollTo(dest, srcY);
                     }
                 },
-                (view, value) -> ((CanvasView) view).canvasDrawer.setScrollX(value),
-                (view, value) -> ((CanvasView) view).canvasDrawer.setScrollY(value),
-                view -> ((CanvasView) view).canvasDrawer.getScrollX(),
-                view -> ((CanvasView) view).canvasDrawer.getScrollY()
+                (view, value) -> ((CanvasView) view).canvasDrawer.getViewScroller().setScrollX(value),
+                (view, value) -> ((CanvasView) view).canvasDrawer.getViewScroller().setScrollY(value),
+                view -> ((CanvasView) view).canvasDrawer.getViewScroller().getScrollX(),
+                view -> ((CanvasView) view).canvasDrawer.getViewScroller().getScrollY()
         );
     }
 
