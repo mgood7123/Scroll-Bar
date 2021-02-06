@@ -9,18 +9,15 @@ import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
 
 import androidx.annotation.InspectableProperty;
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import smallville7123.UI.ScrollBarView.ChangeDetectors.Float_Detector;
 

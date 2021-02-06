@@ -30,11 +30,6 @@ public class CanvasViewBase extends FrameLayout {
     }
 
     @Override
-    final public void draw(Canvas canvas) {
-        super.draw(canvas);
-    }
-
-    @Override
     final protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         return super.drawChild(canvas, child, drawingTime);
     }

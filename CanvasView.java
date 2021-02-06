@@ -6,14 +6,17 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
  * a special view specifically designed for use with ScrollBar
  */
-public class CanvasView extends CanvasViewBase {
+public abstract class CanvasView extends CanvasViewBase {
+    private final Canvas canvas = new Canvas();
+    final CanvasDrawer canvasDrawer = new CanvasDrawer();
+    private Bitmap bitmap;
+
     public CanvasView(@NonNull Context context) {
         this(context, null);
     }
@@ -26,15 +29,38 @@ public class CanvasView extends CanvasViewBase {
         this(context, attrs, defStyleAttr, 0);
     }
 
+    private Context savedContext;
+    private AttributeSet savedAttributeSet;
+    private int savedDefStyleAttr;
+    private int savedDefStyleRes;
+
     public CanvasView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         setWillNotDraw(false);
+        savedContext = context;
+        savedAttributeSet = attrs;
+        savedDefStyleAttr = defStyleAttr;
+        savedDefStyleRes = defStyleRes;
     }
 
-    CanvasDrawer canvasDrawer = new CanvasDrawer();
+    boolean initRan = false;
 
-    Canvas canvas = new Canvas();
-    Bitmap bitmap;
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (!initRan) {
+            init(savedContext, savedAttributeSet, savedDefStyleAttr, savedDefStyleRes);
+            initRan = true;
+        }
+    }
+
+    /**
+     * this function runs during the first call to {@link #onSizeChanged(int, int, int, int)}
+     * <br>
+     * <br>
+     * this ensures that the class is fully constructed before invoking the init function
+     */
+    abstract public void init(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes);
 
     final protected void createCanvas(int width, int height) {
         if (bitmap != null) bitmap.recycle();
@@ -51,7 +77,20 @@ public class CanvasView extends CanvasViewBase {
     protected void onDrawCanvas(CanvasDrawer canvas) {
     }
 
+    /**
+     * @deprecated please call {@link #onDrawCanvas(CanvasDrawer)} instead
+     */
     @Override
+    @Deprecated
+    final public void draw(Canvas canvas) {
+        super.draw(canvas);
+    }
+
+    /**
+     * @deprecated please call {@link #onDrawCanvas(CanvasDrawer)} instead
+     */
+    @Override
+    @Deprecated
     final protected void onDraw(Canvas realCanvas) {
         super.onDraw(realCanvas);
         onDrawCanvas(canvasDrawer);
@@ -71,7 +110,7 @@ public class CanvasView extends CanvasViewBase {
      */
     @Override
     @Deprecated
-    public void setOnScrollChangeListener(OnScrollChangeListener l) {
+    public void setOnScrollChangeListener(View.OnScrollChangeListener l) {
         throw new RuntimeException("please call canvasDrawer.viewScroller.setOnScrollChangeListener(CanvasDrawer.OnScrollChangeListener) instead");
     }
 

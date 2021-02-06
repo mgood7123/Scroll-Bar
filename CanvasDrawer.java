@@ -1,38 +1,43 @@
 package smallville7123.UI.ScrollBarView;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnScrollChangeListener;
 
-import androidx.annotation.InspectableProperty;
+import java.util.Stack;
 
-public class CanvasDrawer extends Canvas {
+public class CanvasDrawer {
 
     private static final String TAG = "CanvasDrawer";
 
-    private Scroller<CanvasDrawer> viewScroller = new Scroller<>(this);
+    private final Scroller<CanvasDrawer> viewScroller = new Scroller<>(this);
     public Scroller<CanvasDrawer> getViewScroller() {
         return viewScroller;
     }
 
-    public Paint paint;
+    private Paint paint;
     private Canvas canvas;
-    int width = 0;
-    int height = 0;
-    int offsetX = 0;
-    int offsetY = 0;
+    private int width = 0;
+    private int height = 0;
+    private int offsetX = 0;
+    private int offsetY = 0;
 
-    @Override
     public int getWidth() {
         return width;
     }
 
-    @Override
     public int getHeight() {
         return height;
+    }
+
+    public int getOffsetX() {
+        return offsetX;
+    }
+
+    public int getOffsetY() {
+        return offsetY;
     }
 
     private void checkCanvas() {
@@ -77,6 +82,17 @@ public class CanvasDrawer extends Canvas {
         );
     }
 
+    public void drawRectAbsoluteLocation(int left, int top, int right, int bottom) {
+        check();
+        canvas.drawRect(
+                left + offsetX,
+                top + offsetY,
+                right + offsetX,
+                bottom + offsetY,
+                paint
+        );
+    }
+
     public void drawRect(int x, int y) {
         drawRect(x, y, width - x, height - y);
     }
@@ -90,7 +106,7 @@ public class CanvasDrawer extends Canvas {
 
     public final static Paint paintBlack = new Paint() {
         {
-            setColor(0);
+            setARGB(255, 0, 0, 0);
         }
     };
 
@@ -101,11 +117,31 @@ public class CanvasDrawer extends Canvas {
     };
 
     public void clear() {
-        clear(0);
+        clear(Color.BLACK);
     }
 
+    /**
+     * clears the canvas to the specified color
+     * <br>
+     * <br>
+     * the alpha component is not modified
+     */
     public void clear(int color) {
         checkCanvas();
-        canvas.drawColor(color, PorterDuff.Mode.CLEAR);
+        canvas.drawColor(color, PorterDuff.Mode.SRC);
+    }
+
+    Stack<Paint> paintStack = new Stack<>();
+
+    public void savePaint() {
+        paintStack.push(paint);
+    }
+
+    public void setPaint(Paint paint) {
+        this.paint = paint;
+    }
+
+    public void restorePaint() {
+        paint = paintStack.pop();
     }
 }
