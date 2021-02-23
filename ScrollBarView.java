@@ -154,7 +154,7 @@ public class ScrollBarView extends View {
                     }
                     View child = scrollView.getChildAt(0);
                     if (child == null) return FAIL;
-                    return SUCCESS(child.getWidth());
+                    return SUCCESS(child.getHeight());
                 },
                 defaultHowToScrollTheView,
                 defaultSetScrollX,
