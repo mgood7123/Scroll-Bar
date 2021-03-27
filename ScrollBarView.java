@@ -680,8 +680,7 @@ public class ScrollBarView extends View {
                             multiplier = (float)thumbY / (float) (trackHeight - thumbHeight);
                         }
                         getContentSize();
-                        float documentWidth = contentSize.get();
-                        float absoluteOffset = multiplier * (documentWidth - viewportSize.get());
+                        float absoluteOffset = multiplier * (contentSize.get() - viewportSize.get());
                         scrollViewport(absoluteOffset);
                     }
                 }
