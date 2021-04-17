@@ -60,6 +60,11 @@ FrameLayout box = new FrameLayout(context, attrs) {
 box.setLayoutParams(new LayoutParams(4000, 4000));
 
 // create a container for the box to sit in
+FrameLayout container = new FrameLayout(context, attrs);
+
+// add the box to the container
+container.addView(box);
+
 // this container will act as a window into the view
 //
 // the idea is that we do this:
@@ -95,25 +100,15 @@ box.setLayoutParams(new LayoutParams(4000, 4000));
 //    and the location of its contents will always remain
 //    RELATIVE to the location of the view
 //
-//    for example
-//    if the container is at location 0, 0
-//    and the contents is at location -30, -30
+//    for example:
 //
-//    then if we move the container to location 40, 40
-//    then the contents will still be at location -30, -30
+//    if the container is at absolute location x=0; y=0
+//    and the contents is at absolute location x=100, y=100
 //
-//    but the contents position inside the container
-//    will not change as if the contents is now located
-//    at 10, 10
+//    then if we move the container to absolute location x=40, y=40
+//    then the contents will be at absolute location x=140, y=140
+//    but the contents will still be at relative location x=100, y=100
 //
-//    however it is important to remember that even though
-//    the container has moved from 0, 0 to 40, 40
-//    the contents is still located at -30, -30
-//
-FrameLayout container = new FrameLayout(context, attrs);
-
-// add the box to the container
-container.addView(box);
 
 // attach scroll bars to the container
 horizontalScrollBar.attachTo(container);
