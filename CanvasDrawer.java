@@ -1,4 +1,4 @@
-package smallville7123.UI.ScrollBarView;
+package smallville7123.AndroidDAW.SDK.UI.ScrollBar;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

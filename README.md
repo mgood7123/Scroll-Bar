@@ -164,13 +164,14 @@ on how ImageView displays its contents
 ```Java
 /**
  * Registers a view for use with the scroll bar
- * @param clazz the class that will be looked for
- * @param howToObtainTheViewSize how to obtain the view size
- * @param howToScrollTheView how to scroll the view
- * @param setScrollX how to set the view's scroll X
- * @param setScrollY how to set the view's scroll Y
- * @param getScrollX how to get the view's scroll X
- * @param getScrollY how to get the view's scroll Y
+ * @param clazz the class that will be looked for, this is required
+ * @param howToObtainTheViewSize how to obtain the view size, this is required
+ * @param howToScrollTheView how to scroll the view, this is required
+ * @param setScrollX how to set the view's scroll X, this is optional
+ * @param setScrollY how to set the view's scroll Y, this is optional
+ * @param getScrollX how to get the view's scroll X, this is optional
+ * @param getScrollY how to get the view's scroll Y, this is optional
+ * @param setupScrollTracking how the view's scrolling will be tracked, this is optional
  */
 public void registerView(
         Class clazz,
@@ -179,7 +180,8 @@ public void registerView(
         SetScroll setScrollX,
         SetScroll setScrollY,
         GetScroll getScrollX,
-        GetScroll getScrollY
+        GetScroll getScrollY,
+        SetupScrollTracking setupScrollTracking
 );
 ```
 
@@ -199,7 +201,8 @@ myScrollBarView.registerView (
         defaultSetScrollX,
         defaultSetScrollY,
         defaultGetScrollX,
-        defaultGetScrollY
+        defaultGetScrollY,
+        defaultSetupScrollTracking
 );
 ```
 
@@ -242,49 +245,56 @@ myScrollBarView.registerView(
         (view, value) -> tmpX = value,
         (view, value) -> tmpY = value,
         (view) -> tmpX,
-        (view) -> tmpY
+        (view) -> tmpY,
+        (view) -> {
+            ((RecyclerView) view).addOnScrollListener(
+                    new RecyclerView.OnScrollListener() {
+                        @Override
+                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                            super.onScrolled(recyclerView, dx, dy);
+                            updateRelativePosition(dx, dy);
+                        }
+                    };
+            );
+        }
 );
 ```
 
 with this, the scroll bar can now work with RecyclerView
 
-do note, that an additional step is required to be fully compatible with recyclerView:
-
-```Java
-recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-    @Override
-    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-        super.onScrolled(recyclerView, dx, dy);
-        myScrollBarView.updateRelativePosition(dx, dy);
-    }
-});
-```
-
-this allows for the scroll bar thumb position's to update when the RecyclerView is scrolled directly via swiping
-
-this is because RecyclerView does NOT store its scroll position
-in getScrollX() and getScrollY() and these will always return 0
+do note, that some views such as `RecyclerView`, do NOT store its scroll position
+in `getScrollX()`` and `getScrollY()`` and these will always return `0`
 
 so we instead need to keep track of the current scroll position ourselves
 
-additionally, RecyclerView does not support absolute scrolling via scrollTo()
+additionally, `RecyclerView` does not support `absolute scrolling` via `scrollTo()`
 
 absolute scrolling is the default that most view's support
 
 if a view requires relative scrolling
-then absolute scrolling can be accomplished by
+then absolute scrolling can be accomplished by:
 
-first invoking scrollBy(x,y) with the negative
+1. invoking `scrollBy(x,y) with the negative
 value of the current scroll position, this will
 cause the view to scroll to position 0
 
-then invoking scrollBy(x,y) with an absolute position
+2. invoking `scrollBy(x,y)` with an absolute position
 
 for example, the following is equivalent to `view.scrollTo(0, dest);`
 
 ```Java
-// scroll to 0 on Y axis
-view.scrollBy(0, -srcY);
-// scroll to absolute position on Y axis
-view.scrollBy(0, dest);
+// scroll absolute using relative scrolling
+(view, orientation, srcX, srcY, dest) -> {
+    if (orientation == VERTICAL) {
+        // scroll to 0 on Y axis
+        view.scrollBy(0, -srcY);
+        // scroll to absolute position on Y axis
+        view.scrollBy(0, dest);
+    } else {
+        // scroll to 0 on X axis
+        view.scrollBy(-srcX, 0);
+        // scroll to absolute position on X axis
+        view.scrollBy(dest, 0);
+    }
+}
 ```

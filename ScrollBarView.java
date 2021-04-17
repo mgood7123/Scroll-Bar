@@ -1,4 +1,4 @@
-package smallville7123.UI.ScrollBarView;
+package smallville7123.AndroidDAW.SDK.UI.ScrollBar;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -19,7 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 
-import smallville7123.UI.ScrollBarView.ChangeDetectors.Float_Detector;
+import smallville7123.AndroidDAW.SDK.UI.ScrollBar.ChangeDetectors.Float_Detector;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -75,6 +75,111 @@ public class ScrollBarView extends View {
     void registerViews() {
 
         registerView(
+                View.class,
+                (view, orientation) -> {
+                    int size;
+                    if (orientation == VERTICAL) {
+                        size = view.getHeight();
+                    } else {
+                        size = view.getWidth();
+                    }
+                    return SUCCESS(size);
+                },
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        registerView(
+                ViewGroup.class,
+                (view, orientation) -> {
+                    ViewGroup viewGroup = (ViewGroup) view;
+                    View child = viewGroup.getChildAt(0);
+                    if (child == null) return FAIL;
+                    int size;
+                    if (orientation == VERTICAL) {
+                        size = child.getHeight();
+                    } else {
+                        size = child.getWidth();
+                    }
+                    return SUCCESS(size);
+                },
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        registerView(
+                ScrollView.class,
+                (view, orientation) -> {
+                    ScrollView scrollView = (ScrollView) view;
+                    if (orientation == HORIZONTAL) {
+                        throw new RuntimeException("attempting to obtain a scroll view of invalid scrolling direction, needed horizontal, got vertical");
+                    }
+                    View child = scrollView.getChildAt(0);
+                    if (child == null) return FAIL;
+                    return SUCCESS(child.getHeight());
+                },
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        registerView(
+                HorizontalScrollView.class,
+                (view, orientation) -> {
+                    HorizontalScrollView horizontalScrollView = (HorizontalScrollView) view;
+                    if (orientation == VERTICAL) {
+                        throw new RuntimeException("attempting to obtain a scroll view of invalid scrolling direction, needed vertical, got horizontal");
+                    }
+                    View child = horizontalScrollView.getChildAt(0);
+                    if (child == null) return FAIL;
+                    return SUCCESS(child.getWidth());
+                },
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        registerView(
+                CanvasView.class,
+                (view, orientation) -> {
+                    CanvasView canvasView = (CanvasView) view;
+                    int size;
+                    if (orientation == VERTICAL) {
+                        size = canvasView.canvasDrawer.getHeight();
+                    } else {
+                        size = canvasView.canvasDrawer.getWidth();
+                    }
+                    return SUCCESS(size);
+                },
+                (view, orientation, srcX, srcY, dest) -> {
+                    if (orientation == VERTICAL) {
+                        ((CanvasView) view).canvasDrawer.getViewScroller().scrollTo(srcX, dest);
+                    } else {
+                        ((CanvasView) view).canvasDrawer.getViewScroller().scrollTo(dest, srcY);
+                    }
+                },
+                (view, value) -> ((CanvasView) view).canvasDrawer.getViewScroller().setScrollX(value),
+                (view, value) -> ((CanvasView) view).canvasDrawer.getViewScroller().setScrollY(value),
+                view -> ((CanvasView) view).canvasDrawer.getViewScroller().getScrollX(),
+                view -> ((CanvasView) view).canvasDrawer.getViewScroller().getScrollY(),
+                null
+        );
+
+        registerView(
                 RecyclerView.class,
                 (view, orientation) -> {
                     RecyclerView recyclerView = (RecyclerView) view;
@@ -103,107 +208,18 @@ public class ScrollBarView extends View {
                 (view, value) -> viewportScrollX = value,
                 (view, value) -> viewportScrollY = value,
                 (view) -> viewportScrollX,
-                (view) -> viewportScrollY
-        );
-
-        registerView(
-                View.class,
-                (view, orientation) -> {
-                    int size;
-                    if (orientation == VERTICAL) {
-                        size = view.getHeight();
-                    } else {
-                        size = view.getWidth();
-                    }
-                    return SUCCESS(size);
-                },
-                defaultHowToScrollTheView,
-                defaultSetScrollX,
-                defaultSetScrollY,
-                defaultGetScrollX,
-                defaultGetScrollY
-        );
-
-        registerView(
-                ViewGroup.class,
-                (view, orientation) -> {
-                    ViewGroup viewGroup = (ViewGroup) view;
-                    View child = viewGroup.getChildAt(0);
-                    if (child == null) return FAIL;
-                    int size;
-                    if (orientation == VERTICAL) {
-                        size = child.getHeight();
-                    } else {
-                        size = child.getWidth();
-                    }
-                    return SUCCESS(size);
-                },
-                defaultHowToScrollTheView,
-                defaultSetScrollX,
-                defaultSetScrollY,
-                defaultGetScrollX,
-                defaultGetScrollY
-        );
-
-        registerView(
-                ScrollView.class,
-                (view, orientation) -> {
-                    ScrollView scrollView = (ScrollView) view;
-                    if (orientation == HORIZONTAL) {
-                        throw new RuntimeException("attempting to obtain a scroll view of invalid scrolling direction, needed horizontal, got vertical");
-                    }
-                    View child = scrollView.getChildAt(0);
-                    if (child == null) return FAIL;
-                    return SUCCESS(child.getHeight());
-                },
-                defaultHowToScrollTheView,
-                defaultSetScrollX,
-                defaultSetScrollY,
-                defaultGetScrollX,
-                defaultGetScrollY
-        );
-
-        registerView(
-                HorizontalScrollView.class,
-                (view, orientation) -> {
-                    HorizontalScrollView horizontalScrollView = (HorizontalScrollView) view;
-                    if (orientation == VERTICAL) {
-                        throw new RuntimeException("attempting to obtain a scroll view of invalid scrolling direction, needed vertical, got horizontal");
-                    }
-                    View child = horizontalScrollView.getChildAt(0);
-                    if (child == null) return FAIL;
-                    return SUCCESS(child.getWidth());
-                },
-                defaultHowToScrollTheView,
-                defaultSetScrollX,
-                defaultSetScrollY,
-                defaultGetScrollX,
-                defaultGetScrollY
-        );
-
-        registerView(
-                CanvasView.class,
-                (view, orientation) -> {
-                    CanvasView canvasView = (CanvasView) view;
-                    int size;
-                    if (orientation == VERTICAL) {
-                        size = canvasView.canvasDrawer.getHeight();
-                    } else {
-                        size = canvasView.canvasDrawer.getWidth();
-                    }
-                    return SUCCESS(size);
-                },
-                (view, orientation, srcX, srcY, dest) -> {
-                    if (orientation == VERTICAL) {
-                        ((CanvasView) view).canvasDrawer.getViewScroller().scrollTo(srcX, dest);
-                    } else {
-                        ((CanvasView) view).canvasDrawer.getViewScroller().scrollTo(dest, srcY);
-                    }
-                },
-                (view, value) -> ((CanvasView) view).canvasDrawer.getViewScroller().setScrollX(value),
-                (view, value) -> ((CanvasView) view).canvasDrawer.getViewScroller().setScrollY(value),
-                view -> ((CanvasView) view).canvasDrawer.getViewScroller().getScrollX(),
-                view -> ((CanvasView) view).canvasDrawer.getViewScroller().getScrollY()
+                (view) -> viewportScrollY,
+                (view) -> {
+                    ((RecyclerView) view).addOnScrollListener(
+                            new RecyclerView.OnScrollListener() {
+                                @Override
+                                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                                    super.onScrolled(recyclerView, dx, dy);
+                                    updateRelativePosition(dx, dy);
+                                }
+                            }
+                    );
+                }
         );
     }
 
@@ -310,6 +326,11 @@ public class ScrollBarView extends View {
 
     public void attachTo(View viewport) {
         this.viewport = viewport;
+        for (ViewInformation registeredView : registeredViews) {
+            if (registeredView.clazz.isInstance(viewport)) {
+                registeredView.setupScrollTracking.run(viewport);
+            }
+        }
         invalidate();
     }
 
@@ -430,10 +451,38 @@ public class ScrollBarView extends View {
         int run(View view);
     }
 
-    static public SetScroll defaultSetScrollX = View::setScrollX;
-    static public SetScroll defaultSetScrollY = View::setScrollY;
-    static public GetScroll defaultGetScrollX = View::getScrollX;
-    static public GetScroll defaultGetScrollY = View::getScrollY;
+    /**
+     * this specifies how the view's scrolling will be tracked
+     * <br>
+     * <br>
+     * there is no such way of tracking the scroll location of
+     * every view using the exact same method
+     * <br>
+     * <br>
+     * this will be different for different
+     * classes
+     * <br>
+     * <br>
+     * MOST view's allow their scroll position to be obtained via
+     * {@link View#getScrollX()} and {@link View#getScrollY()}
+     * <br>
+     * <br>
+     * however some view's, such as {@link RecyclerView}, return 0 for
+     * {@link View#getScrollX()} and {@link View#getScrollY()}
+     * <br>
+     * <br>
+     * so an OnScrollListener needs to be added to track the scroll
+     * location, often it passes relative offsets
+     */
+    public interface SetupScrollTracking {
+        void run(View viewport);
+    }
+
+    static public final SetScroll defaultSetScrollX = View::setScrollX;
+    static public final SetScroll defaultSetScrollY = View::setScrollY;
+    static public final GetScroll defaultGetScrollX = View::getScrollX;
+    static public final GetScroll defaultGetScrollY = View::getScrollY;
+    static public final SetupScrollTracking defaultSetupScrollTracking = (view) -> {};
 
     static public final class ViewInformation {
         Class clazz;
@@ -443,6 +492,7 @@ public class ScrollBarView extends View {
         SetScroll setScrollY;
         GetScroll getScrollX;
         GetScroll getScrollY;
+        SetupScrollTracking setupScrollTracking;
         int depth;
     }
 
@@ -450,13 +500,14 @@ public class ScrollBarView extends View {
 
     /**
      * Registers a view for use with the scroll bar
-     * @param clazz the class that will be looked for
-     * @param howToObtainTheViewSize how to obtain the view size
-     * @param howToScrollTheView how to scroll the view
-     * @param setScrollX how to set the view's scroll X
-     * @param setScrollY how to set the view's scroll Y
-     * @param getScrollX how to get the view's scroll X
-     * @param getScrollY how to get the view's scroll Y
+     * @param clazz the class that will be looked for, this is required
+     * @param howToObtainTheViewSize how to obtain the view size, this is required
+     * @param howToScrollTheView how to scroll the view, this is required
+     * @param setScrollX how to set the view's scroll X, this is optional
+     * @param setScrollY how to set the view's scroll Y, this is optional
+     * @param getScrollX how to get the view's scroll X, this is optional
+     * @param getScrollY how to get the view's scroll Y, this is optional
+     * @param setupScrollTracking how the view's scrolling will be tracked, this is optional
      */
     public void registerView(
             Class clazz,
@@ -465,20 +516,25 @@ public class ScrollBarView extends View {
             SetScroll setScrollX,
             SetScroll setScrollY,
             GetScroll getScrollX,
-            GetScroll getScrollY
+            GetScroll getScrollY,
+            SetupScrollTracking setupScrollTracking
     ) {
         if (clazz == null) {
             throw new RuntimeException("Cannot register a null class");
+        }
+        if (howToObtainTheViewSize == null) {
+            throw new RuntimeException("howToObtainTheViewSize cannot be null");
         }
         ViewInformation viewInformation = new ViewInformation();
         viewInformation.clazz = clazz;
         viewInformation.depth = -1;
         viewInformation.howToObtainTheViewSize = howToObtainTheViewSize;
-        viewInformation.howToScrollTheView = howToScrollTheView;
-        viewInformation.setScrollX = setScrollX;
-        viewInformation.setScrollY = setScrollY;
-        viewInformation.getScrollX = getScrollX;
-        viewInformation.getScrollY = getScrollY;
+        viewInformation.howToScrollTheView = howToScrollTheView == null ? defaultHowToScrollTheView : howToScrollTheView;
+        viewInformation.setScrollX = setScrollX == null ? defaultSetScrollX : setScrollX;
+        viewInformation.setScrollY = setScrollY == null ? defaultSetScrollY : setScrollY;
+        viewInformation.getScrollX = getScrollX == null ? defaultGetScrollX : getScrollX;
+        viewInformation.getScrollY = getScrollY == null ? defaultGetScrollY : getScrollY;
+        viewInformation.setupScrollTracking = setupScrollTracking == null ? defaultSetupScrollTracking : setupScrollTracking;
 
         Class s1 = clazz;
         while (s1 != null) {

@@ -1,4 +1,4 @@
-package smallville7123.UI.ScrollBarView;
+package smallville7123.AndroidDAW.SDK.UI.ScrollBar;
 
 import androidx.annotation.InspectableProperty;
 
